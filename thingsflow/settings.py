@@ -12,6 +12,8 @@ DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
+    'users',
+    'board',
     'corsheaders',
     'django_extensions',
     # "django.contrib.admin",
