@@ -109,3 +109,24 @@ class BoardDeleteView(View):
             return JsonResponse({'Message': 'DELETE_SUCCESS'}, status = 200)
         except FreeBoard.DoesNotExist:
             return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 400)
+
+
+class BoardUpdateView(View):
+    def post(self, request, post_id):
+        try:
+            data = json.loads(request.body)
+            post = FreeBoard.objects.get(id = post_id)
+
+            if not bcrypt.checkpw(data['password'].encode('utf-8'), post.password.encode('utf-8')):
+                return JsonResponse({"message" : "INVALID_PASSWORD"}, status=401)
+
+
+            post = FreeBoard.objects.filter(id = post_id)
+            title = data['title']
+            content = data['content']
+
+            post.update(title=title, content=content)
+
+            return JsonResponse({'Message': 'EDIT_SUCCESS'}, status = 200)
+        except FreeBoard.DoesNotExist:
+            return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 400)
