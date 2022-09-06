@@ -1,5 +1,4 @@
 import json
-import re
 import bcrypt
 import requests
 
@@ -19,7 +18,7 @@ class BoardView(View):
             data = json.loads(request.body)
 
             password = data["password"]
-            title    = data["password"]
+            title    = data["title"]
             content  = data["content"]
 
             """날씨API에서 현재 날씨 얻어오기"""
@@ -51,15 +50,14 @@ class BoardView(View):
     def get(self, request):
         """ 페이지 1부터 1++ """
         page = request.GET.get('page', None) 
-
+        page_count = int(request.GET.get('page_count', 20)) # QueryString으로 page_count보내지않은경우 default 20
         # 한페이지 내에서 모든 게시글
         if not page:
             postings = FreeBoard.objects.all().order_by('-created_at')
-        # 웹 크롤링시 pagenation 기능 default offset = 20 
+        # 웹 스크롤링시 pagenation 기능 default page_count = 20 
         else:
-            offset = 20
             page = int(page)
-            postings = FreeBoard.objects.all().order_by('-created_at')[(page-1)*offset:page*offset]
+            postings = FreeBoard.objects.all().order_by('-created_at')[(page-1)*page_count:page*page_count]
 
         results = [
             {
@@ -90,29 +88,12 @@ class BoardDetailView(View):
                 'updated_at': post.updated_at
             }
 
-            return JsonResponse(notice_detail, status = 200)
+            return JsonResponse(notice_detail, status = 201)
         except FreeBoard.DoesNotExist:
-            return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 400)
+            return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 404)
 
 
-class BoardDeleteView(View):
-    def post(self, request, post_id):
-        try:
-            data = json.loads(request.body)
-            post = FreeBoard.objects.get(id = post_id)
-
-            if not bcrypt.checkpw(data['password'].encode('utf-8'), post.password.encode('utf-8')):
-                return JsonResponse({"message" : "INVALID_PASSWORD"}, status=401)
-
-            post.delete()
-
-            return JsonResponse({'Message': 'DELETE_SUCCESS'}, status = 200)
-        except FreeBoard.DoesNotExist:
-            return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 400)
-
-
-class BoardUpdateView(View):
-    def post(self, request, post_id):
+    def put(self, request, post_id):
         try:
             data = json.loads(request.body)
             post = FreeBoard.objects.get(id = post_id)
@@ -129,4 +110,21 @@ class BoardUpdateView(View):
 
             return JsonResponse({'Message': 'EDIT_SUCCESS'}, status = 200)
         except FreeBoard.DoesNotExist:
-            return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 400)
+            return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 404)
+
+    """ delete는 body로 password전달 불가능 >> header에 담기 """
+    def delete(self, request, post_id):
+        try:
+            password = request.META['HTTP_PASSWORD']
+            post = FreeBoard.objects.get(id = post_id)
+
+            if not bcrypt.checkpw(password.encode('utf-8'), post.password.encode('utf-8')):
+                return JsonResponse({"message" : "INVALID_PASSWORD"}, status=401)
+
+            post.delete()
+
+            return JsonResponse({'Message': 'DELETE_SUCCESS'}, status = 200)
+        except FreeBoard.DoesNotExist:
+            return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 404)
+
+
