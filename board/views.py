@@ -12,8 +12,8 @@ from .validators import password_valid
 
 
 class BoardView(View):
-    """게시글 등록"""
-
+    
+    """게시글 등록 API"""
     def post(self, request):
         try:
             data = json.loads(request.body)
@@ -46,3 +46,31 @@ class BoardView(View):
             return JsonResponse({'Message': 'SUCCESS'}, status = 200)
         except KeyError:
             return JsonResponse({'Message': 'KEY_ERROR'}, status=400)
+
+    "게시글 리스트 API"
+    def get(self, request):
+        """ 페이지 1부터 1++ """
+        page = request.GET.get('page', None) 
+
+        # 한페이지 내에서 모든 게시글
+        if not page:
+            postings = FreeBoard.objects.all().order_by('-created_at')
+        # 웹 크롤링시 pagenation 기능 default offset = 20 
+        else:
+            offset = 20
+            page = int(page)
+            postings = FreeBoard.objects.all().order_by('-created_at')[(page-1)*offset:page*offset]
+
+        results = [
+            {
+                'id'        : post.id,
+                'title'     : post.title,
+                'content'   : post.content,
+                'weather'   : post.weather,
+                'created_at': post.created_at,
+                'updated_at': post.updated_at
+            }
+            for post in postings
+        ]
+
+        return JsonResponse({'results': results}, status=200)
