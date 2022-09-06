@@ -25,6 +25,16 @@
 
 ### ⭕프로젝트 상세 구현 사항
 
+- **이모지** 활용을 위한 Database Setting
+  - **`MySQL`**
+    - Character Set - utf8mb4
+    - Collate - utf8mb4_unicode_ci
+  - **`Django`**
+    ```
+    'OPTIONS': {'charset': 'utf8mb4', 'use_unicode': True}
+    ```
+<br/>
+
 - **게시판 등록**  ▶️  `[POST] {url}/board`
   - **requests 패키지**를 활용한 weather API 활용 : 현재 날씨 상황 가져오기
   - **re module**을 활용한 비밀번호 valiator 구현
@@ -46,3 +56,4 @@
 - **게시판 리스트** ▶️ `[GET] {url}/board/<int:post_id>/update`
   - **bcypt 패키지**를 활용한 post_id에 따른 비밀번호 일치확인
 <br/>
+
