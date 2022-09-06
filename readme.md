@@ -23,7 +23,7 @@
 - **Back-End** : Python, Django, requests, bcrypt, mysql
 - **ETC** : Git, Github
 
-### [⚙️API명세서](https://documenter.getpostman.com/view/20321788/VV4zQFUQ) by POSTMAN
+### [⚙️API명세서 by POSTMAN](https://documenter.getpostman.com/view/20321788/VV4zQFUQ) 
 
 
 ### ⭕프로젝트 상세 구현 사항
