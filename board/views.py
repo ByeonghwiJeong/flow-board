@@ -27,13 +27,16 @@ class BoardView(View):
                 'http://api.weatherapi.com/v1/current.json?key=41b7b28bf1ff4f59b4f10444220609&q=Seoul&aqi=no')\
                 .json()['current']['condition']['text']
 
+            """비밀번호 유효성 검사"""
             password_check = password_valid(password)
             if not password_check[0]:
                 return JsonResponse({'Message': password_check[1]}, status=400)
 
+            """비밀번호 암호화"""
             hashed_password = bcrypt.hashpw(password.encode(
                 'utf-8'), bcrypt.gensalt()).decode('utf-8')
-
+            
+            """자유게시판 글 생성"""
             FreeBoard.objects.create(
                 password = hashed_password,
                 weather  = weather,
