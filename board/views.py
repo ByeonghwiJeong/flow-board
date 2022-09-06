@@ -74,3 +74,22 @@ class BoardView(View):
         ]
 
         return JsonResponse({'results': results}, status=200)
+
+
+class BoardDetailView(View):
+
+    def get(self, request, post_id):
+        try:
+            post = FreeBoard.objects.get(id = post_id)
+            notice_detail = {
+                'id'        : post.id,
+                'title'     : post.title,
+                'content'   : post.content,
+                'weather'   : post.weather,
+                'created_at': post.created_at,
+                'updated_at': post.updated_at
+            }
+
+            return JsonResponse(notice_detail, status = 200)
+        except FreeBoard.DoesNotExist:
+            return JsonResponse({'Message': 'DOES_NOT_EXIST'}, status = 400)
